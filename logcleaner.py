@@ -21,10 +21,7 @@ parser.add_argument('-o', '--outputFile',
                     help="Name of file to store results of formatting.")
 args = parser.parse_args()
 
-if os.name == 'nt':
-    osSep = "\\"
-else:
-    osSep = "/"
+(osSep := "\\") if os.name == 'nt' else (osSep := "/")
 
 def main(appPath):
     if args.outputFile:
@@ -32,33 +29,37 @@ def main(appPath):
     else:
         outputFile = CreateGenericLogfile()
     with open(outputFile, 'w') as outputLog:
-        with open(args.logFile, 'rt') as readLog:
-            editedLog = readLog.read()
-            formats = GetFormats(appPath + osSep + "formats" + osSep + args.logFormat + '.json')
-            for item in formats:
-                if item["action"]:
-                    match item["action"].lower():
-                        case "delete":
-                            if item["pattern"]:
-                                editedLog = re.sub(item["pattern"],"",editedLog)
-                            else:
-                                print("You must have a pattern for each format")
-                                continue
-                        case "replace":
-                            if item["replace"]:
-                                editedLog = re.sub(item["pattern"],item["replace"],editedLog)
-                            else:
-                                print("You must have a replace item for any replace pattern")
-                                continue
-                        case _:
-                            continue
-                else:
-                    print("Every format line must have an action")
-            formatString = "Formatting log file [" + args.logFile + \
-                "] with format-file [" + args.logFormat + \
-                "] and saving to [" + outputFile + "]"
-            print(formatString)
-            outputLog.write(editedLog)
+        try:
+            with open(args.logFile, 'rt') as readLog:
+                editedLog = readLog.read()
+                formats = GetFormats(appPath + osSep + "formats" + osSep + args.logFormat + '.json')
+                for item in formats:
+                    if item["action"]:
+                        match item["action"].lower():
+                            case "delete":
+                                if item["pattern"]:
+                                    editedLog = re.sub(item["pattern"],"",editedLog)
+                                else:
+                                    print("You must have a pattern for each format")
+                                    break
+                            case "replace":
+                                if item["replace"]:
+                                    editedLog = re.sub(item["pattern"],item["replace"],editedLog)
+                                else:
+                                    print("You must have a replace item for any replace pattern")
+                                    break
+                            case _:
+                                break
+                    else:
+                        print("Every format line must have an action")
+                formatString = "Formatting log file [" + args.logFile + \
+                    "] with format-file [" + args.logFormat + \
+                    "] and saving to [" + outputFile + "]"
+                print(formatString)
+                outputLog.write(editedLog)
+        except:
+            print("The log file [" + args.logFile + "] cannot be opened. Check that it exists and is readable.")
+            os._exit(os.EX_OSFILE)
 
 
 def CreateGenericLogfile(iterDex=0):
@@ -76,8 +77,12 @@ def CreateGenericLogfile(iterDex=0):
 
 
 def GetFormats(formatPath):
-    with open(formatPath, 'r') as formatFile:
-        return json.load(formatFile)
+    try:
+        with open(formatPath, 'r') as formatFile:
+            return json.load(formatFile)
+    except:
+        print("The format file [" + formatPath + "] cannot be opened. Check that it exists and is readable.")
+        os._exit(os.EX_)
 
 
 if __name__ == '__main__':
