@@ -1,0 +1,11 @@
+[
+    {
+        "action": "delete",
+        "pattern": " id=\"\\d+\""
+    },
+    {
+        "action": "replace",
+        "pattern": "<metadata>",
+        "replace": "<!-- <metadata> -->"
+    }
+]
