@@ -38,21 +38,20 @@ def main(appPath):
                 formats = GetFormats(appPath + osSep + "formats" + osSep + args.logFormat + '.json')
                 for item in formats:
                     if item["action"]:
-                        match item["action"].lower():
-                            case "delete":
-                                if item["pattern"]:
-                                    editedLog = re.sub(item["pattern"],"",editedLog)
-                                else:
-                                    print("You must have a pattern for each format")
-                                    break
-                            case "replace":
-                                if item["replace"]:
-                                    editedLog = re.sub(item["pattern"],item["replace"],editedLog)
-                                else:
-                                    print("You must have a replace item for any replace pattern")
-                                    break
-                            case _:
+                        if item["action"].lower() == "delete":
+                            if item["pattern"]:
+                                editedLog = re.sub(item["pattern"],"",editedLog)
+                            else:
+                                print("You must have a pattern for each format")
                                 break
+                        elif item["action"].lower() == "replace":
+                            if item["replace"]:
+                                editedLog = re.sub(item["pattern"],item["replace"],editedLog)
+                            else:
+                                print("You must have a replace item for any replace pattern")
+                                break
+                        else:
+                            break
                     else:
                         print("Every format line must have an action")
                 formatString = "Formatting log file [" + args.logFile + \
