@@ -21,7 +21,10 @@ parser.add_argument('-o', '--outputFile',
                     help="Name of file to store results of formatting.")
 args = parser.parse_args()
 
-(osSep := "\\") if os.name == 'nt' else (osSep := "/")
+if os.name == 'nt':
+    osSep = "\\" 
+else:
+    osSep = "/"
 
 def main(appPath):
     if args.outputFile:
